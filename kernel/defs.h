@@ -8,6 +8,15 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct pinfo {
+    int ppid;
+    int syscall_count; 
+    int page_usage;
+};
+
+int             print_sinfo(int);
+int             print_pinfo(struct pinfo*);
+int             getFreePages(void);
 
 // bio.c
 void            binit(void);

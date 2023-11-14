@@ -19,6 +19,7 @@ extern void forkret(void);
 static void freeproc(struct proc *p);
 
 extern char trampoline[]; // trampoline.S
+extern int syscalls_counter;
 
 // helps ensure that wakeups of wait()ing
 // parents are not lost. helps obey the
@@ -124,6 +125,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->perProcessSysCall = 0;
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -680,4 +682,41 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+int 
+print_sinfo(int n) 
+{
+  if(n == 0) {
+    struct proc *p;
+    int activeProcesses = 0;
+    for(p = proc; p < &proc[NPROC]; p++) {
+      acquire(&p->lock);
+      if(p->state == RUNNABLE || p->state == RUNNING || p->state == ZOMBIE || p->state == SLEEPING || p->state == USED) {
+        activeProcesses++;
+      }
+      release(&p->lock);
+    }
+    return activeProcesses;
+  }
+  if(n == 1) {
+    return syscalls_counter - 1;
+  } 
+  if(n == 2) {
+    return getFreePages();
+  }
+  return -1;
+}
+
+int 
+print_pinfo(struct pinfo *param) 
+{
+  struct pinfo info;
+  struct proc* p = myproc();
+  acquire(&wait_lock);
+  info.ppid = p->parent ? p->parent->pid : -1;
+  release(&wait_lock);
+  info.syscall_count = p->perProcessSysCall;
+  info.page_usage = (PGROUNDUP(p->sz))/PGSIZE;
+  return copyout(p->pagetable, (uint64)param, (char *) &info, sizeof(info));
 }
