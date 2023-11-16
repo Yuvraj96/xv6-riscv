@@ -89,3 +89,19 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_scheduler_tickets(void)
+{
+  int n;
+  argint(0, &n);
+  sched_tickets(n);
+  return 0;
+}
+
+uint64
+sys_scheduler_stats(void)
+{
+  sched_statistics();
+  return 0;
+}
