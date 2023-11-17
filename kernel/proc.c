@@ -556,7 +556,8 @@ scheduler(void)
 
 void sched_tickets(int n) {
   struct proc *p = myproc();
-  p->tickets = n;
+  int num = n > 10000 ? 10000 : n;
+  p->tickets = num;
   p->stride = 10000/p->tickets;
   p->pass = p->stride;
 }
