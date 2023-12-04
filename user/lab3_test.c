@@ -3,7 +3,7 @@
 #include "user/thread.h"
 #include "user/user.h"
 
-lock_t lock;
+struct lock_t lock;
 int n_threads, n_passes, cur_turn, cur_pass;
 
 void *thread_fn(void *arg) {
